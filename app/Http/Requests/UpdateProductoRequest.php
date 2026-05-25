@@ -12,18 +12,17 @@ class UpdateProductoRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, ValidationRule|array<mixed>|string>
-     */
     public function rules(): array
     {
         return [
-            //
+            'id_admin1'       => 'sometimes|exists:administradores,id_admin',
+            'nom_productos'   => 'sometimes|string|max:100',
+            'descripcion'     => 'sometimes|string',
+            'stock'           => 'sometimes|integer|min:0',
+            'precio_producto' => 'sometimes|numeric|min:0',
         ];
     }
 }

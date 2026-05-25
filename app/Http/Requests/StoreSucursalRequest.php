@@ -12,18 +12,24 @@ class StoreSucursalRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, ValidationRule|array<mixed>|string>
-     */
     public function rules(): array
     {
         return [
-            //
+            'nombre_suc'   => 'required|string|max:100',
+            'dir_suc'      => 'required|string|max:200',
+            'contacto_suc' => 'required|string|max:20',
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'nombre_suc.required'   => 'El nombre de la sucursal es obligatorio.',
+            'dir_suc.required'      => 'La dirección es obligatoria.',
+            'contacto_suc.required' => 'El contacto es obligatorio.',
         ];
     }
 }

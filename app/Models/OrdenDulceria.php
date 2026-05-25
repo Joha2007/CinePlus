@@ -35,6 +35,6 @@ class OrdenDulceria extends Model
             'orden_productos',
             'id_orden1',
             'id_producto1'
-        );
+        )->withPivot('cantidad');
     }
 }

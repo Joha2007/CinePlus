@@ -9,13 +9,12 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('peliculas', function (Blueprint $table) {
-
             $table->id('id_pelicula');
-
             $table->string('nom_pelicula');
             $table->text('descripcion');
-            $table->string('duracion');
-
+            $table->integer('duracion'); // en minutos
+            $table->string('img')->nullable();
+            $table->string('rango_edad', 10)->default('TP'); // TP, +7, +13, +18
             $table->timestamps();
         });
     }

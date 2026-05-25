@@ -12,18 +12,19 @@ class UpdatePeliculaRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, ValidationRule|array<mixed>|string>
-     */
     public function rules(): array
     {
         return [
-            //
+            'nom_pelicula' => 'sometimes|string|max:150',
+            'descripcion'  => 'sometimes|string',
+            'duracion'     => 'sometimes|integer|min:1',
+            'img'          => 'nullable|string|max:255',
+            'rango_edad'   => 'sometimes|in:TP,+7,+13,+18',
+            'categorias'   => 'nullable|array',
+            'categorias.*' => 'exists:categorias,id_categoria',
         ];
     }
 }

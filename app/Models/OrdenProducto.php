@@ -12,6 +12,7 @@ class OrdenProducto extends Model
 
     protected $fillable = [
         'id_orden1',
-        'id_producto1'
+        'id_producto1',
+        'cantidad',
     ];
 }

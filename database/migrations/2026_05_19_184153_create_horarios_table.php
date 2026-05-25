@@ -9,16 +9,12 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('horarios', function (Blueprint $table) {
-
             $table->id('id_horario');
-
             $table->unsignedBigInteger('id_pelicula1');
             $table->unsignedBigInteger('id_sala2');
-
             $table->time('hora_inicio');
             $table->date('fecha');
-            $table->string('tec_proyeco');
-
+            $table->string('tec_proyecc'); // 2D, 3D, IMAX (corregido)
             $table->timestamps();
 
             $table->foreign('id_pelicula1')

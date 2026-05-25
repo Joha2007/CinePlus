@@ -1,49 +1,42 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Controller;
+use App\Http\Requests\StoreHorarioRequest;
+use App\Http\Requests\UpdateHorarioRequest;
 use App\Models\Horario;
-use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 
 class HorarioController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function index(): JsonResponse
     {
-        //
+        $horarios = Horario::with(['pelicula', 'sala'])->get();
+        return response()->json($horarios);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    public function store(StoreHorarioRequest $request): JsonResponse
     {
-        //
+        $horario = Horario::create($request->validated());
+        return response()->json($horario->load(['pelicula', 'sala']), 201);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Horario $horario)
+    public function show(Horario $horario): JsonResponse
     {
-        //
+        $horario->load(['pelicula', 'sala.sucursal']);
+        return response()->json($horario);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Horario $horario)
+    public function update(UpdateHorarioRequest $request, Horario $horario): JsonResponse
     {
-        //
+        $horario->update($request->validated());
+        return response()->json($horario->load(['pelicula', 'sala']));
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Horario $horario)
+    public function destroy(Horario $horario): JsonResponse
     {
-        //
+        $horario->delete();
+        return response()->json(['message' => 'Horario eliminado correctamente']);
     }
 }

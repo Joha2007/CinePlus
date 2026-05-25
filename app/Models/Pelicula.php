@@ -12,8 +12,27 @@ class Pelicula extends Model
     protected $fillable = [
         'nom_pelicula',
         'descripcion',
-        'duracion'
+        'duracion',
+        'img',
+        'rango_edad',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'duracion' => 'integer',
+        ];
+    }
+
+    public function categorias()
+    {
+        return $this->belongsToMany(
+            Categoria::class,
+            'pelicula_categoria',
+            'id_pelicula',
+            'id_categoria'
+        );
+    }
 
     public function horarios()
     {

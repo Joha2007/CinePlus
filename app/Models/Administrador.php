@@ -3,9 +3,15 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
+use Illuminate\Auth\Authenticatable;
 
-class Administrador extends Model
+class Administrador extends Model implements AuthenticatableContract
 {
+    use HasApiTokens, HasFactory, Authenticatable;
+
     protected $table = 'administradores';
     protected $primaryKey = 'id_admin';
 
@@ -15,8 +21,18 @@ class Administrador extends Model
         'apellido_adm',
         'correo_adm',
         'contacto_adm',
-        'contrasena_adm'
+        'contrasena_adm',
     ];
+
+    protected $hidden = [
+        'contrasena_adm',
+    ];
+
+    // Para que Sanctum use la columna correcta como password
+    public function getAuthPassword()
+    {
+        return $this->contrasena_adm;
+    }
 
     public function sucursal()
     {

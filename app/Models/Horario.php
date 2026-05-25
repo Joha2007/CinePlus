@@ -16,7 +16,7 @@ class Horario extends Model
         'id_sala2',
         'hora_inicio',
         'fecha',
-        'tec_proyeco'
+        'tec_proyecc',
     ];
 
     protected function casts(): array

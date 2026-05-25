@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="300" height="420" viewBox="0 0 300 420">
+  <rect width="300" height="420" fill="#1f1f1f"/>
+  <rect x="1" y="1" width="298" height="418" fill="none" stroke="#333" stroke-width="2"/>
+  <!-- Film strip holes top -->
+  <rect x="10" y="8" width="18" height="14" rx="2" fill="#141414"/>
+  <rect x="40" y="8" width="18" height="14" rx="2" fill="#141414"/>
+  <rect x="70" y="8" width="18" height="14" rx="2" fill="#141414"/>
+  <rect x="100" y="8" width="18" height="14" rx="2" fill="#141414"/>
+  <rect x="130" y="8" width="18" height="14" rx="2" fill="#141414"/>
+  <rect x="160" y="8" width="18" height="14" rx="2" fill="#141414"/>
+  <rect x="190" y="8" width="18" height="14" rx="2" fill="#141414"/>
+  <rect x="220" y="8" width="18" height="14" rx="2" fill="#141414"/>
+  <rect x="250" y="8" width="18" height="14" rx="2" fill="#141414"/>
+  <!-- Film strip holes bottom -->
+  <rect x="10" y="398" width="18" height="14" rx="2" fill="#141414"/>
+  <rect x="40" y="398" width="18" height="14" rx="2" fill="#141414"/>
+  <rect x="70" y="398" width="18" height="14" rx="2" fill="#141414"/>
+  <rect x="100" y="398" width="18" height="14" rx="2" fill="#141414"/>
+  <rect x="130" y="398" width="18" height="14" rx="2" fill="#141414"/>
+  <rect x="160" y="398" width="18" height="14" rx="2" fill="#141414"/>
+  <rect x="190" y="398" width="18" height="14" rx="2" fill="#141414"/>
+  <rect x="220" y="398" width="18" height="14" rx="2" fill="#141414"/>
+  <rect x="250" y="398" width="18" height="14" rx="2" fill="#141414"/>
+  <!-- Camera icon -->
+  <rect x="85" y="150" width="130" height="90" rx="8" fill="#2a2a2a" stroke="#444" stroke-width="2"/>
+  <circle cx="150" cy="195" r="28" fill="#1f1f1f" stroke="#555" stroke-width="2"/>
+  <circle cx="150" cy="195" r="18" fill="#e50914" opacity="0.6"/>
+  <circle cx="150" cy="195" r="8" fill="#e50914"/>
+  <rect x="100" y="160" width="20" height="12" rx="3" fill="#444"/>
+  <!-- Text -->
+  <text x="150" y="275" font-family="'Segoe UI', Arial, sans-serif" font-size="13" fill="#666" text-anchor="middle">Sin imagen</text>
+  <text x="150" y="293" font-family="'Segoe UI', Arial, sans-serif" font-size="11" fill="#444" text-anchor="middle">CinePlus</text>
+</svg>

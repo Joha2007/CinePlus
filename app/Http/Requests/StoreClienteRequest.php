@@ -12,18 +12,27 @@ class StoreClienteRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, ValidationRule|array<mixed>|string>
-     */
     public function rules(): array
     {
         return [
-            //
+            'nombre_cliente'   => 'required|string|max:100',
+            'apellido_cliente' => 'required|string|max:100',
+            'correo_cli'       => 'required|email|unique:clientes,correo_cli',
+            'edad_cli'         => 'required|integer|min:1|max:120',
+            'contrasena_cli'   => 'required|string|min:6',
+            'contacto_cli'     => 'required|string|max:20',
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'correo_cli.unique'    => 'Este correo ya está registrado.',
+            'contrasena_cli.min'   => 'La contraseña debe tener al menos 6 caracteres.',
+            'edad_cli.min'         => 'La edad debe ser mayor a 0.',
         ];
     }
 }

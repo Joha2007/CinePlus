@@ -1,49 +1,55 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Controller;
+use App\Http\Requests\StoreClienteRequest;
+use App\Http\Requests\UpdateClienteRequest;
 use App\Models\Cliente;
-use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Hash;
 
 class ClienteController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function index(): JsonResponse
     {
-        //
+        $clientes = Cliente::all();
+        return response()->json($clientes);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    public function store(StoreClienteRequest $request): JsonResponse
     {
-        //
+        $data = $request->validated();
+        $data['contrasena_cli'] = Hash::make($data['contrasena_cli']);
+        $cliente = Cliente::create($data);
+        return response()->json($cliente, 201);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Cliente $cliente)
+    public function show(Cliente $cliente): JsonResponse
     {
-        //
+        $cliente->load('reservas');
+        return response()->json($cliente);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Cliente $cliente)
+    public function update(UpdateClienteRequest $request, Cliente $cliente): JsonResponse
     {
-        //
+        $data = $request->validated();
+        if (!empty($data['contrasena_cli'])) {
+            $data['contrasena_cli'] = Hash::make($data['contrasena_cli']);
+        }
+        $cliente->update($data);
+        return response()->json($cliente);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Cliente $cliente)
+    public function destroy(Cliente $cliente): JsonResponse
     {
-        //
+        $cliente->delete();
+        return response()->json(['message' => 'Cliente eliminado correctamente']);
+    }
+
+    // GET /api/clientes/{cliente}/reservas
+    public function reservas(Cliente $cliente): JsonResponse
+    {
+        return response()->json($cliente->reservas()->with(['horario.pelicula', 'asientos'])->get());
     }
 }

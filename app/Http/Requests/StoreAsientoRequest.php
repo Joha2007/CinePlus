@@ -12,18 +12,27 @@ class StoreAsientoRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, ValidationRule|array<mixed>|string>
-     */
     public function rules(): array
     {
         return [
-            //
+            'id_sala1'    => 'required|exists:salas,id_sala',
+            'num_fila'    => 'required|string|size:1|regex:/^[A-Z]$/',
+            'num_asiento' => 'required|integer|min:1',
+            'estado'      => 'sometimes|in:Disponible,Ocupado',
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'id_sala1.required'      => 'La sala es obligatoria.',
+            'id_sala1.exists'        => 'La sala seleccionada no existe.',
+            'num_fila.regex'         => 'La fila debe ser una letra mayúscula (A-Z).',
+            'num_asiento.required'   => 'El número de asiento es obligatorio.',
+            'estado.in'              => 'El estado debe ser Disponible u Ocupado.',
         ];
     }
 }

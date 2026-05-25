@@ -12,15 +12,9 @@ class Asiento extends Model
     protected $fillable = [
         'id_sala1',
         'num_fila',
-        'estado'
+        'num_asiento',
+        'estado',
     ];
-
-    protected function casts(): array
-    {
-        return [
-            'num_fila' => 'integer',
-        ];
-    }
 
     public function sala()
     {

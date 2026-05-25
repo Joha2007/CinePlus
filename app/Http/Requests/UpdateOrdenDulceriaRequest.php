@@ -12,18 +12,17 @@ class UpdateOrdenDulceriaRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, ValidationRule|array<mixed>|string>
-     */
     public function rules(): array
     {
         return [
-            //
+            'id_reserva2' => 'sometimes|exists:reservas,id_reserva',
+            'total'       => 'sometimes|numeric|min:0',
+            'cant_produc' => 'sometimes|integer|min:1',
+            'productos'   => 'nullable|array',
+            'productos.*' => 'exists:productos,id_producto',
         ];
     }
 }

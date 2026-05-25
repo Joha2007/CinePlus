@@ -12,18 +12,20 @@ class UpdateAdministradorRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, ValidationRule|array<mixed>|string>
-     */
     public function rules(): array
     {
+        $id = $this->route('administrador')?->id_admin;
+
         return [
-            //
+            'id_suc'        => 'sometimes|exists:sucursales,id_suc',
+            'nombre_adm'    => 'sometimes|string|max:100',
+            'apellido_adm'  => 'sometimes|string|max:100',
+            'correo_adm'    => "sometimes|email|unique:administradores,correo_adm,{$id},id_admin",
+            'contacto_adm'  => 'sometimes|string|max:20',
+            'contrasena_adm'=> 'sometimes|nullable|string|min:6',
         ];
     }
 }

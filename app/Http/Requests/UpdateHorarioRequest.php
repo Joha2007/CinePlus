@@ -12,18 +12,17 @@ class UpdateHorarioRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, ValidationRule|array<mixed>|string>
-     */
     public function rules(): array
     {
         return [
-            //
+            'id_pelicula1' => 'sometimes|exists:peliculas,id_pelicula',
+            'id_sala2'     => 'sometimes|exists:salas,id_sala',
+            'hora_inicio'  => 'sometimes|date_format:H:i',
+            'fecha'        => 'sometimes|date',
+            'tec_proyecc'  => 'sometimes|in:2D,3D,IMAX',
         ];
     }
 }

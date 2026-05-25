@@ -12,18 +12,16 @@ class UpdateAsientoRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, ValidationRule|array<mixed>|string>
-     */
     public function rules(): array
     {
         return [
-            //
+            'id_sala1'    => 'sometimes|exists:salas,id_sala',
+            'num_fila'    => 'sometimes|string|size:1|regex:/^[A-Z]$/',
+            'num_asiento' => 'sometimes|integer|min:1',
+            'estado'      => 'sometimes|in:Disponible,Ocupado',
         ];
     }
 }

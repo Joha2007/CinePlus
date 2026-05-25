@@ -12,18 +12,20 @@ class UpdateClienteRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, ValidationRule|array<mixed>|string>
-     */
     public function rules(): array
     {
+        $id = $this->route('cliente')?->id_cliente;
+
         return [
-            //
+            'nombre_cliente'   => 'sometimes|string|max:100',
+            'apellido_cliente' => 'sometimes|string|max:100',
+            'correo_cli'       => "sometimes|email|unique:clientes,correo_cli,{$id},id_cliente",
+            'edad_cli'         => 'sometimes|integer|min:1|max:120',
+            'contrasena_cli'   => 'sometimes|nullable|string|min:6',
+            'contacto_cli'     => 'sometimes|string|max:20',
         ];
     }
 }

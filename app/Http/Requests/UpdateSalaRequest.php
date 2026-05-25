@@ -12,18 +12,15 @@ class UpdateSalaRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, ValidationRule|array<mixed>|string>
-     */
     public function rules(): array
     {
         return [
-            //
+            'id_suc2'     => 'sometimes|exists:sucursales,id_suc',
+            'capaci_sala' => 'sometimes|integer|min:1',
+            'num_sala'    => 'sometimes|integer|min:1',
         ];
     }
 }

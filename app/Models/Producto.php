@@ -14,7 +14,8 @@ class Producto extends Model
         'nom_productos',
         'descripcion',
         'stock',
-        'precio_producto'
+        'precio_producto',
+        'img',
     ];
 
     protected function casts(): array

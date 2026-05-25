@@ -1,49 +1,48 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Controller;
+use App\Http\Requests\StoreSalaRequest;
+use App\Http\Requests\UpdateSalaRequest;
 use App\Models\Sala;
-use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 
 class SalaController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function index(): JsonResponse
     {
-        //
+        $salas = Sala::with('sucursal')->get();
+        return response()->json($salas);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    public function store(StoreSalaRequest $request): JsonResponse
     {
-        //
+        $sala = Sala::create($request->validated());
+        return response()->json($sala->load('sucursal'), 201);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Sala $sala)
+    public function show(Sala $sala): JsonResponse
     {
-        //
+        $sala->load(['sucursal', 'horarios', 'asientos']);
+        return response()->json($sala);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Sala $sala)
+    public function update(UpdateSalaRequest $request, Sala $sala): JsonResponse
     {
-        //
+        $sala->update($request->validated());
+        return response()->json($sala->load('sucursal'));
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Sala $sala)
+    public function destroy(Sala $sala): JsonResponse
     {
-        //
+        $sala->delete();
+        return response()->json(['message' => 'Sala eliminada correctamente']);
+    }
+
+    // GET /api/salas/{sala}/asientos
+    public function asientos(Sala $sala): JsonResponse
+    {
+        return response()->json($sala->asientos);
     }
 }

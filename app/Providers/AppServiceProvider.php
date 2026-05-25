@@ -19,6 +19,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        // Sanctum puede autenticar tanto Clientes como Administradores
+        \Laravel\Sanctum\Sanctum::usePersonalAccessTokenModel(
+            \Laravel\Sanctum\PersonalAccessToken::class
+        );
     }
 }
