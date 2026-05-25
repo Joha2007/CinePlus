@@ -1,2 +1,13 @@
 *
 !.gitignore
+
+# Permitir carpeta public
+!public/
+!public/storage/
+
+# Permitir carpetas específicas
+!public/storage/peliculas/
+!public/storage/peliculas/**
+
+!public/storage/snacks/
+!public/storage/snacks/**
