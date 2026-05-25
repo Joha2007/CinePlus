@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title')Reservar — {{ $horario->pelicula->nom_pelicula ?? 'Función' }} — CinePlus@endsection
+@section('title', 'Reservar — ' . ($horario->pelicula->nom_pelicula ?? 'Función') . ' — CinePlus')
 
 @section('content')
 <div class="container py-5" style="max-width:900px">
@@ -79,7 +79,7 @@
                     <span class="text-secondary fw-bold" style="width:20px;text-align:right;font-size:.8rem">{{ $fila }}</span>
                     <div class="d-flex gap-2 flex-wrap">
                         @foreach($asientosFila->sortBy('num_asiento') as $a)
-                        @if($a->estado === 'Disponible')
+                        @if(!in_array($a->id_asiento, $ocupadosIds))
                             <button type="button"
                                 class="btn-asiento disponible"
                                 data-id="{{ $a->id_asiento }}"

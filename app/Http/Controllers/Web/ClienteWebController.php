@@ -11,6 +11,7 @@ use App\Models\Producto;
 use App\Models\Reserva;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 use Illuminate\Support\Str;
 
@@ -38,6 +39,8 @@ class ClienteWebController extends Controller
 
     /**
      * Muestra la pantalla de selección de asientos para un horario.
+     * La disponibilidad de asientos se evalúa por horario específico,
+     * no por el estado global del asiento (que puede ser de otra función en la misma sala).
      */
     public function reservar(int $horario): View
     {
@@ -48,13 +51,22 @@ class ClienteWebController extends Controller
             ])
             ->findOrFail($horario);
 
+        // IDs de asientos ya reservados para ESTE horario (reservas Confirmadas)
+        // Esto evita que asientos de otras funciones en la misma sala aparezcan ocupados
+        $ocupadosIds = DB::table('reserva_asiento')
+            ->join('reservas', 'reserva_asiento.id_reserva1', '=', 'reservas.id_reserva')
+            ->where('reservas.id_horario1', $horario->id_horario)
+            ->where('reservas.estado', 'Confirmada')
+            ->pluck('reserva_asiento.id_asiento1')
+            ->toArray();
+
         // Asientos agrupados por fila
         $asientos = $horario->sala->asientos->sortBy('num_asiento')->groupBy('num_fila');
 
         // Productos de dulcería disponibles
         $productos = Producto::where('stock', '>', 0)->get();
 
-        return view('cliente.reservar', compact('horario', 'asientos', 'productos'));
+        return view('cliente.reservar', compact('horario', 'asientos', 'ocupadosIds', 'productos'));
     }
 
     /**
@@ -83,6 +95,16 @@ class ClienteWebController extends Controller
         // IDs de los asientos que ya tiene esta reserva (para marcarlos pre-seleccionados)
         $asientosActuales = $reserva->asientos->pluck('id_asiento');
 
+        // IDs de asientos ocupados para ESTE horario por OTRAS reservas (no la actual)
+        // Usa la misma lógica por-horario para no mostrar asientos de otras funciones como ocupados
+        $ocupadosIds = DB::table('reserva_asiento')
+            ->join('reservas', 'reserva_asiento.id_reserva1', '=', 'reservas.id_reserva')
+            ->where('reservas.id_horario1', $reserva->id_horario1)
+            ->where('reservas.estado', 'Confirmada')
+            ->where('reservas.id_reserva', '!=', $reserva->id_reserva)
+            ->pluck('reserva_asiento.id_asiento1')
+            ->toArray();
+
         // Cantidades actuales de snacks: [ id_producto => cantidad ]
         $snacksActuales = collect();
         foreach ($reserva->ordenes as $orden) {
@@ -97,21 +119,24 @@ class ClienteWebController extends Controller
             ->get();
 
         return view('cliente.editar-reserva', compact(
-            'reserva', 'asientos', 'asientosActuales', 'snacksActuales', 'productos'
+            'reserva', 'asientos', 'asientosActuales', 'ocupadosIds', 'snacksActuales', 'productos'
         ));
     }
 
     /**
      * Actualiza una reserva existente (cambia asientos y/o snacks).
+     * Libera los asientos anteriores, ocupa los nuevos, devuelve stock de snacks
+     * anteriores y descuenta stock de los snacks nuevos.
      */
     public function reservasUpdate(Request $request, int $id): RedirectResponse
     {
+        // Validación de los datos enviados desde el formulario de edición de reserva
         $request->validate([
-            'asientos'    => 'required|array|min:1',
-            'asientos.*'  => 'exists:asientos,id_asiento',
-            'metodo_pago' => 'required|in:Tarjeta,Efectivo,Transferencia',
-            'snacks'      => 'nullable|array',
-            'snacks.*'    => 'integer|min:0|max:20',
+            'asientos'    => 'required|array|min:1',                      // Al menos un asiento debe seleccionarse
+            'asientos.*'  => 'exists:asientos,id_asiento',                // Cada asiento debe existir en la tabla asientos
+            'metodo_pago' => 'required|in:Tarjeta,Efectivo,Transferencia',// Método de pago obligatorio (Tarjeta, Efectivo o Transferencia)
+            'snacks'      => 'nullable|array',                            // Lista de snacks opcional
+            'snacks.*'    => 'integer|min:0|max:20',                      // Cantidad de cada snack: número entero entre 0 y 20
         ]);
 
         $clienteId = session('cliente')['id_cliente'];
@@ -128,14 +153,18 @@ class ClienteWebController extends Controller
         $aLiberar = array_diff($asientosViejos, $asientosNuevos); // se van a liberar
         $aNuevos  = array_diff($asientosNuevos, $asientosViejos); // recién seleccionados
 
-        // Verificar que los asientos recién elegidos sigan disponibles
+        // Verificar que los asientos recién elegidos no estén ya reservados para ESTE horario
+        // (verificación por horario, no por estado global del asiento)
         if (!empty($aNuevos)) {
-            $disponibles = Asiento::whereIn('id_asiento', $aNuevos)
-                ->where('id_sala1', $horario->id_sala2)
-                ->where('estado', 'Disponible')
+            $yaReservados = DB::table('reserva_asiento')
+                ->join('reservas', 'reserva_asiento.id_reserva1', '=', 'reservas.id_reserva')
+                ->where('reservas.id_horario1', $reserva->id_horario1)
+                ->where('reservas.estado', 'Confirmada')
+                ->where('reservas.id_reserva', '!=', $reserva->id_reserva)
+                ->whereIn('reserva_asiento.id_asiento1', $aNuevos)
                 ->count();
-            if ($disponibles !== count($aNuevos)) {
-                return back()->withErrors(['asientos' => 'Uno o más asientos ya no están disponibles.'])->withInput();
+            if ($yaReservados > 0) {
+                return back()->withErrors(['asientos' => 'Uno o más asientos ya fueron reservados para esta función.'])->withInput();
             }
         }
 
@@ -255,30 +284,46 @@ class ClienteWebController extends Controller
 
     /**
      * Procesa la reserva (store).
+     * Valida los datos, verifica disponibilidad de asientos, calcula el monto total,
+     * crea la reserva, la orden de dulcería y descuenta el stock de snacks.
      */
     public function reservarStore(Request $request): RedirectResponse
     {
+        // Validación de los datos enviados desde el formulario de reserva
         $request->validate([
-            'id_horario'   => 'required|exists:horarios,id_horario',
-            'asientos'     => 'required|array|min:1',
-            'asientos.*'   => 'exists:asientos,id_asiento',
-            'metodo_pago'  => 'required|in:Tarjeta,Efectivo,Transferencia',
-            'snacks'       => 'nullable|array',
-            'snacks.*'     => 'integer|min:0|max:20',
+            'id_horario'   => 'required|exists:horarios,id_horario',      // Horario obligatorio, debe existir en la tabla horarios
+            'asientos'     => 'required|array|min:1',                     // Al menos un asiento debe seleccionarse
+            'asientos.*'   => 'exists:asientos,id_asiento',               // Cada asiento debe existir en la tabla asientos
+            'metodo_pago'  => 'required|in:Tarjeta,Efectivo,Transferencia',// Método de pago obligatorio (Tarjeta, Efectivo o Transferencia)
+            'snacks'       => 'nullable|array',                           // Lista de snacks opcional
+            'snacks.*'     => 'integer|min:0|max:20',                     // Cantidad de cada snack: número entero entre 0 y 20
         ]);
 
         $clienteId  = session('cliente')['id_cliente'];
         $horarioId  = $request->id_horario;
         $asientoIds = $request->asientos;
+        $horario    = Horario::findOrFail($horarioId);
 
-        // Verificar que los asientos siguen disponibles
+        // Verificar que los asientos pertenecen a la sala del horario
         $asientos = Asiento::whereIn('id_asiento', $asientoIds)
-            ->where('id_sala1', Horario::findOrFail($horarioId)->id_sala2)
-            ->where('estado', 'Disponible')
+            ->where('id_sala1', $horario->id_sala2)
             ->get();
 
         if ($asientos->count() !== count($asientoIds)) {
-            return back()->withErrors(['asientos' => 'Uno o más asientos ya no están disponibles.']);
+            return back()->withErrors(['asientos' => 'Los asientos seleccionados no son válidos para esta función.']);
+        }
+
+        // Verificar que los asientos NO están ya reservados para ESTE horario específico
+        // (no usar el estado global del asiento, que puede corresponder a otra función)
+        $yaReservados = DB::table('reserva_asiento')
+            ->join('reservas', 'reserva_asiento.id_reserva1', '=', 'reservas.id_reserva')
+            ->where('reservas.id_horario1', $horarioId)
+            ->where('reservas.estado', 'Confirmada')
+            ->whereIn('reserva_asiento.id_asiento1', $asientoIds)
+            ->count();
+
+        if ($yaReservados > 0) {
+            return back()->withErrors(['asientos' => 'Uno o más asientos ya fueron reservados para esta función.']);
         }
 
         // ── Calcular snacks ──────────────────────────────────────

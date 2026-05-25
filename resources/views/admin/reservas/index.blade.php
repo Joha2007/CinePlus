@@ -242,35 +242,47 @@
     </div>
 </div>
 
+{{-- Pre-procesamos los datos en PHP para evitar errores del parser de Blade
+     al tener closures con arrays anidados dentro de @json() --}}
+@php
+    $reservasJson = $reservas->map(function ($r) {
+        return [
+            'id'             => $r->id_reserva,
+            'codigo'         => $r->num_confirmacion,
+            'estado'         => $r->estado,
+            'fecha_compra'   => $r->fecha_compra
+                                    ? \Carbon\Carbon::parse($r->fecha_compra)->format('d/m/Y')
+                                    : '',
+            'monto'          => number_format($r->monto, 2),
+            'metodo_pago'    => $r->metodo_pago,
+            'cliente_nombre' => ($r->cliente->nombre_cliente ?? '') . ' ' . ($r->cliente->apellido_cliente ?? ''),
+            'cliente_correo' => $r->cliente->correo_cli ?? '',
+            'pelicula'       => $r->horario->pelicula->nom_pelicula ?? '',
+            'fecha_funcion'  => $r->horario->fecha
+                                    ? \Carbon\Carbon::parse($r->horario->fecha)->format('d/m/Y')
+                                    : '',
+            'hora_funcion'   => $r->horario->hora_inicio
+                                    ? \Carbon\Carbon::parse($r->horario->hora_inicio)->format('h:i A')
+                                    : '',
+            'tecnologia'     => $r->horario->tec_proyecc ?? '',
+            'sala'           => $r->horario->sala->num_sala ?? '',
+            'sucursal'       => $r->horario->sala->sucursal->nombre_suc ?? '',
+            'asientos'       => $r->asientos->map(fn ($a) => $a->num_fila . $a->num_asiento)->values(),
+            'ordenes'        => $r->ordenes->map(fn ($o) => [
+                'total'     => number_format($o->total, 2),
+                'productos' => $o->productos->map(fn ($p) => [
+                    'nombre'   => $p->nom_productos,
+                    'cantidad' => $p->pivot->cantidad,
+                    'precio'   => number_format($p->precio_producto * $p->pivot->cantidad, 2),
+                ])->values(),
+            ])->values(),
+        ];
+    });
+@endphp
+
 {{-- Datos de reservas para el modal (JSON embebido) --}}
 <script>
-const reservasData = @json($reservas->map(function($r) {
-    return [
-        'id'               => $r->id_reserva,
-        'codigo'           => $r->num_confirmacion,
-        'estado'           => $r->estado,
-        'fecha_compra'     => $r->fecha_compra ? \Carbon\Carbon::parse($r->fecha_compra)->format('d/m/Y') : '',
-        'monto'            => number_format($r->monto, 2),
-        'metodo_pago'      => $r->metodo_pago,
-        'cliente_nombre'   => ($r->cliente->nombre_cliente ?? '') . ' ' . ($r->cliente->apellido_cliente ?? ''),
-        'cliente_correo'   => $r->cliente->correo_cli ?? '',
-        'pelicula'         => $r->horario->pelicula->nom_pelicula ?? '',
-        'fecha_funcion'    => $r->horario->fecha   ? \Carbon\Carbon::parse($r->horario->fecha)->format('d/m/Y') : '',
-        'hora_funcion'     => $r->horario->hora_inicio ? \Carbon\Carbon::parse($r->horario->hora_inicio)->format('h:i A') : '',
-        'tecnologia'       => $r->horario->tec_proyecc ?? '',
-        'sala'             => $r->horario->sala->num_sala ?? '',
-        'sucursal'         => $r->horario->sala->sucursal->nombre_suc ?? '',
-        'asientos'         => $r->asientos->map(fn($a) => $a->num_fila . $a->num_asiento)->values(),
-        'ordenes'          => $r->ordenes->map(fn($o) => [
-            'total'     => number_format($o->total, 2),
-            'productos' => $o->productos->map(fn($p) => [
-                'nombre'   => $p->nom_productos,
-                'cantidad' => $p->pivot->cantidad,
-                'precio'   => number_format($p->precio_producto * $p->pivot->cantidad, 2),
-            ])->values(),
-        ])->values(),
-    ];
-}));
+const reservasData = @json($reservasJson);
 
 function verDetalle(id) {
     const r = reservasData.find(x => x.id === id);

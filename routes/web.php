@@ -78,8 +78,13 @@ Route::middleware('auth.admin')->prefix('admin')->name('admin.')->group(function
         return back()->with('success', 'Categoría eliminada.');
     })->name('categorias.destroy');
 
-    // Salas
-    Route::get('/salas', [AdminWebController::class, 'salasIndex'])->name('salas.index');
+    // Salas — CRUD completo
+    Route::get   ('/salas',              [AdminWebController::class, 'salasIndex'])->name('salas.index');
+    Route::get   ('/salas/crear',        [AdminWebController::class, 'salasCreate'])->name('salas.create');
+    Route::post  ('/salas',              [AdminWebController::class, 'salasStore'])->name('salas.store');
+    Route::get   ('/salas/{id}/editar',  [AdminWebController::class, 'salasEdit'])->name('salas.edit');
+    Route::put   ('/salas/{id}',         [AdminWebController::class, 'salasUpdate'])->name('salas.update');
+    Route::delete('/salas/{id}',         [AdminWebController::class, 'salasDestroy'])->name('salas.destroy');
 
     // Productos (dulcería) — CRUD completo
     Route::get   ('/productos',              [AdminWebController::class, 'productosIndex'])->name('productos.index');
