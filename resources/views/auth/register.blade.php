@@ -45,7 +45,7 @@
                             <div class="col-md-6">
                                 <label class="form-label">Edad</label>
                                 <input type="number" name="edad_cli" class="form-control"
-                                       value="{{ old('edad_cli') }}" min="1" max="120" required>
+                                       value="{{ old('edad_cli') }}" min="18" max="85" required>
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">Teléfono</label>

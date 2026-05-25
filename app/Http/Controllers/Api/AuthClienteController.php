@@ -19,12 +19,12 @@ class AuthClienteController extends Controller
     public function register(Request $request): JsonResponse
     {
         $data = $request->validate([
-            'nombre_cliente'   => 'required|string|max:100',
-            'apellido_cliente' => 'required|string|max:100',
-            'correo_cli'       => 'required|email|unique:clientes,correo_cli',
-            'edad_cli'         => 'required|integer|min:1|max:120',
-            'contrasena_cli'   => 'required|string|min:6|confirmed',
-            'contacto_cli'     => 'required|string|max:20',
+            'nombre_cliente'   => 'required|string|max:100',              // Nombre obligatorio, solo texto, máximo 100 caracteres
+            'apellido_cliente' => 'required|string|max:100',              // Apellido obligatorio, solo texto, máximo 100 caracteres
+            'correo_cli'       => 'required|email|unique:clientes,correo_cli', // Correo válido y único en la tabla clientes
+            'edad_cli'         => 'required|integer|min:18|max:85',
+            'contrasena_cli'   => 'required|string|min:6|confirmed',      // Contraseña mínimo 6 caracteres, debe coincidir con contrasena_cli_confirmation
+            'contacto_cli'     => 'required|string|max:9|regex:/^\d{4}-\d{4}$/',               // Número de contacto obligatorio, máximo 20 caracteres
         ]);
 
         $data['contrasena_cli'] = Hash::make($data['contrasena_cli']);

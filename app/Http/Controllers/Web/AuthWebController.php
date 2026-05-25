@@ -43,7 +43,7 @@ class AuthWebController extends Controller
             'nombre_cliente'   => 'required|string|max:100',              // Nombre obligatorio, solo texto, máximo 100 caracteres
             'apellido_cliente' => 'required|string|max:100',              // Apellido obligatorio, solo texto, máximo 100 caracteres
             'correo_cli'       => 'required|email|unique:clientes,correo_cli', // Correo válido y único (no puede repetirse en la tabla clientes)
-            'edad_cli'         => 'required|integer|min:1|max:120',       // Edad obligatoria, número entero entre 1 y 120 años
+            'edad_cli'         => 'required|integer|min:15|max:85',
             'contrasena_cli'   => 'required|string|min:6|confirmed',      // Contraseña mínimo 6 caracteres, debe confirmarse con contrasena_cli_confirmation
             'contacto_cli'     => 'required|string|max:20',               // Número de contacto obligatorio, máximo 20 caracteres
         ]);

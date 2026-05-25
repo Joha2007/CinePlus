@@ -37,11 +37,7 @@ class ClienteWebController extends Controller
         return view('cliente.reservas', compact('reservas'));
     }
 
-    /**
-     * Muestra la pantalla de selección de asientos para un horario.
-     * La disponibilidad de asientos se evalúa por horario específico,
-     * no por el estado global del asiento (que puede ser de otra función en la misma sala).
-     */
+  
     public function reservar(int $horario): View
     {
         $horario = Horario::with([
@@ -132,11 +128,11 @@ class ClienteWebController extends Controller
     {
         // Validación de los datos enviados desde el formulario de edición de reserva
         $request->validate([
-            'asientos'    => 'required|array|min:1',                      // Al menos un asiento debe seleccionarse
-            'asientos.*'  => 'exists:asientos,id_asiento',                // Cada asiento debe existir en la tabla asientos
-            'metodo_pago' => 'required|in:Tarjeta,Efectivo,Transferencia',// Método de pago obligatorio (Tarjeta, Efectivo o Transferencia)
-            'snacks'      => 'nullable|array',                            // Lista de snacks opcional
-            'snacks.*'    => 'integer|min:0|max:20',                      // Cantidad de cada snack: número entero entre 0 y 20
+            'asientos'    => 'required|array|min:1',                      
+            'asientos.*'  => 'exists:asientos,id_asiento',                
+            'metodo_pago' => 'required|in:Tarjeta,Efectivo,Transferencia',
+            'snacks'      => 'nullable|array',                            
+            'snacks.*'    => 'integer|min:0|max:20',                     
         ]);
 
         $clienteId = session('cliente')['id_cliente'];
