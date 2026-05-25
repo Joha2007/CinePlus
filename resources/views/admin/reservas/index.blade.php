@@ -187,26 +187,11 @@
                     <td class="text-end pe-4">
                         {{-- Ver detalle --}}
                         <button type="button"
-                                class="btn btn-sm btn-outline-info me-1"
+                                class="btn btn-sm btn-outline-info"
                                 title="Ver detalle"
                                 onclick="verDetalle({{ $r->id_reserva }})">
                             <i class="bi bi-eye"></i>
                         </button>
-
-                        {{-- Cancelar (solo si está confirmada) --}}
-                        @if($r->estado === 'Confirmada')
-                        <form action="{{ route('admin.reservas.destroy', $r->id_reserva) }}"
-                              method="POST" class="d-inline">
-                            @csrf @method('DELETE')
-                            <button type="button" class="btn btn-sm btn-outline-danger"
-                                title="Cancelar reserva"
-                                data-cp-confirm="¿Cancelar la reserva {{ $r->num_confirmacion }} de {{ $r->cliente->nombre_cliente ?? 'este cliente' }}? Los asientos quedarán libres y se devolverá el stock de snacks."
-                                data-cp-title="Cancelar reserva"
-                                data-cp-btn-text="Sí, cancelar">
-                                <i class="bi bi-x-circle"></i>
-                            </button>
-                        </form>
-                        @endif
                     </td>
                 </tr>
                 @empty

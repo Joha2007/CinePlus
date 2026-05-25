@@ -228,8 +228,11 @@ return [
             'exists'   => 'La sala seleccionada no existe.',
         ],
         'hora_inicio' => [
-            'required'     => 'La hora de inicio es obligatoria.',
-            'date_format'  => 'La hora debe tener el formato HH:MM.',
+            'required'    => 'La hora de inicio es obligatoria.',
+            'date_format' => 'La hora debe tener el formato HH:MM.',
+        ],
+        'fecha' => [
+            'after_or_equal' => 'La fecha debe ser hoy o una fecha futura.',
         ],
         'tec_proyecc' => [
             'required' => 'La tecnología de proyección es obligatoria.',

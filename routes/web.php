@@ -98,6 +98,5 @@ Route::middleware('auth.admin')->prefix('admin')->name('admin.')->group(function
     Route::get('/clientes', [AdminWebController::class, 'clientesIndex'])->name('clientes.index');
 
     // Reservas
-    Route::get   ('/reservas',       [AdminWebController::class, 'reservasIndex'])->name('reservas.index');
-    Route::delete('/reservas/{id}',  [AdminWebController::class, 'reservasDestroy'])->name('reservas.destroy');
+    Route::get('/reservas', [AdminWebController::class, 'reservasIndex'])->name('reservas.index');
 });
