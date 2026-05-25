@@ -94,9 +94,6 @@ Route::middleware('auth.admin')->prefix('admin')->name('admin.')->group(function
     Route::put   ('/productos/{id}',         [AdminWebController::class, 'productosUpdate'])->name('productos.update');
     Route::delete('/productos/{id}',         [AdminWebController::class, 'productosDestroy'])->name('productos.destroy');
 
-    // Clientes
-    Route::get('/clientes', [AdminWebController::class, 'clientesIndex'])->name('clientes.index');
-
     // Reservas
     Route::get('/reservas', [AdminWebController::class, 'reservasIndex'])->name('reservas.index');
 });

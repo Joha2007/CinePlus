@@ -20,7 +20,6 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withExceptions(function (Exceptions $exceptions): void {
         // Cuando cualquier guard lanza AuthenticationException (ej: auth:sanctum),
         // redirigir al login del cliente en lugar del inexistente route('login').
-        // Nota: no usamos ->with() porque el middleware 'api' no inicia sesión.
         $exceptions->render(function (
             \Illuminate\Auth\AuthenticationException $_e,
             \Illuminate\Http\Request $request

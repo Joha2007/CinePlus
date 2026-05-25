@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\AdministradorResource;
 use App\Models\Administrador;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -13,55 +14,47 @@ class AuthAdministradorController extends Controller
 {
     /**
      * Login de administrador.
-     * Verifica las credenciales del administrador, revoca tokens anteriores
-     * y genera un nuevo token de acceso con rol de admin.
+     * POST /api/v1/auth/admin/login
      */
     public function login(Request $request): JsonResponse
     {
-        // Validación de los campos de acceso del administrador
         $request->validate([
-            'correo_adm'     => 'required|email',    // Correo del administrador obligatorio y con formato válido
-            'contrasena_adm' => 'required|string',   // Contraseña del administrador obligatoria
+            'correo_adm'     => 'required|email',
+            'contrasena_adm' => 'required|string',
         ]);
 
-        // Buscar al administrador por su correo electrónico
         $admin = Administrador::where('correo_adm', $request->correo_adm)->first();
 
-        // Verificar que el administrador exista y que la contraseña sea correcta
         if (! $admin || ! Hash::check($request->contrasena_adm, $admin->contrasena_adm)) {
             throw ValidationException::withMessages([
                 'correo_adm' => ['Las credenciales son incorrectas.'],
             ]);
         }
 
-        // Revocar tokens anteriores para evitar sesiones duplicadas
         $admin->tokens()->delete();
-
-        // Generar un nuevo token de acceso con el rol de administrador
         $token = $admin->createToken('admin-token', ['role:admin'])->plainTextToken;
 
         return response()->json([
             'message' => 'Inicio de sesión exitoso.',
-            'admin'   => $admin->load('sucursal'),
+            'admin'   => new AdministradorResource($admin->load('sucursal')),
             'token'   => $token,
         ]);
     }
 
     /**
-     * Retorna el administrador autenticado.
+     * GET /api/v1/admin/me — retorna el administrador autenticado.
      */
-    public function me(Request $request): JsonResponse
+    public function me(Request $request): AdministradorResource
     {
-        return response()->json($request->user()->load(['sucursal', 'productos']));
+        return new AdministradorResource($request->user()->load(['sucursal']));
     }
 
     /**
-     * Logout — revoca el token actual.
+     * POST /api/v1/admin/logout — revoca el token actual.
      */
     public function logout(Request $request): JsonResponse
     {
         $request->user()->currentAccessToken()->delete();
-
         return response()->json(['message' => 'Sesión cerrada correctamente.']);
     }
 }

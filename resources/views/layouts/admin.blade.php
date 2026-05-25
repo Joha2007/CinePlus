@@ -408,11 +408,6 @@
             <i class="bi bi-cup-straw"></i> Dulcería
         </a>
 
-        <div class="nav-section-title">Usuarios</div>
-        <a class="nav-item-cp {{ request()->routeIs('admin.clientes.*') ? 'active' : '' }}"
-           href="{{ route('admin.clientes.index') }}">
-            <i class="bi bi-people"></i> Clientes
-        </a>
 
     </nav>
 

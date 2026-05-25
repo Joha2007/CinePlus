@@ -5,50 +5,53 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreSucursalRequest;
 use App\Http\Requests\UpdateSucursalRequest;
+use App\Http\Resources\SucursalResource;
+use App\Http\Resources\SalaResource;
+use App\Http\Resources\AdministradorResource;
 use App\Models\Sucursal;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class SucursalController extends Controller
 {
-    public function index(): JsonResponse
+    public function index(): AnonymousResourceCollection
     {
-        $sucursales = Sucursal::with(['salas', 'administradores'])->get();
-        return response()->json($sucursales);
+        return SucursalResource::collection(Sucursal::with(['salas'])->get());
     }
 
-    public function store(StoreSucursalRequest $request): JsonResponse
+    public function store(StoreSucursalRequest $request): SucursalResource
     {
         $sucursal = Sucursal::create($request->validated());
-        return response()->json($sucursal, 201);
+        return new SucursalResource($sucursal);
     }
 
-    public function show(Sucursal $sucursal): JsonResponse
+    public function show(Sucursal $sucursal): SucursalResource
     {
         $sucursal->load(['salas', 'administradores']);
-        return response()->json($sucursal);
+        return new SucursalResource($sucursal);
     }
 
-    public function update(UpdateSucursalRequest $request, Sucursal $sucursal): JsonResponse
+    public function update(UpdateSucursalRequest $request, Sucursal $sucursal): SucursalResource
     {
         $sucursal->update($request->validated());
-        return response()->json($sucursal);
+        return new SucursalResource($sucursal);
     }
 
     public function destroy(Sucursal $sucursal): JsonResponse
     {
         $sucursal->delete();
-        return response()->json(['message' => 'Sucursal eliminada correctamente'], 200);
+        return response()->json(['message' => 'Sucursal eliminada correctamente']);
     }
 
-    // GET /api/sucursales/{sucursal}/salas
-    public function salas(Sucursal $sucursal): JsonResponse
+    // GET /api/v1/sucursales/{sucursal}/salas
+    public function salas(Sucursal $sucursal): AnonymousResourceCollection
     {
-        return response()->json($sucursal->salas()->with('horarios')->get());
+        return SalaResource::collection($sucursal->salas()->with('horarios')->get());
     }
 
-    // GET /api/sucursales/{sucursal}/administradores
-    public function administradores(Sucursal $sucursal): JsonResponse
+    // GET /api/v1/admin/sucursales/{sucursal}/administradores
+    public function administradores(Sucursal $sucursal): AnonymousResourceCollection
     {
-        return response()->json($sucursal->administradores);
+        return AdministradorResource::collection($sucursal->administradores);
     }
 }

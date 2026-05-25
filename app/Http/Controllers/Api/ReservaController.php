@@ -5,18 +5,33 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreReservaRequest;
 use App\Http\Requests\UpdateReservaRequest;
+use App\Http\Resources\ReservaResource;
+use App\Http\Resources\AsientoResource;
+use App\Http\Resources\OrdenDulceriaResource;
 use App\Models\Reserva;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class ReservaController extends Controller
 {
-    public function index(): JsonResponse
+    /**
+     * GET /api/v1/admin/reservas  o  GET /api/v1/cliente/reservas
+     * Parámetros opcionales: ?estado=&per_page=
+     */
+    public function index(Request $request): AnonymousResourceCollection
     {
-        $reservas = Reserva::with(['cliente', 'horario.pelicula', 'horario.sala', 'asientos', 'ordenes'])->get();
-        return response()->json($reservas);
+        $query = Reserva::with(['cliente', 'horario.pelicula', 'horario.sala', 'asientos', 'ordenes']);
+
+        if ($estado = $request->query('estado')) {
+            $query->where('estado', $estado);
+        }
+
+        $perPage = min((int) $request->query('per_page', 15), 50);
+        return ReservaResource::collection($query->latest()->paginate($perPage));
     }
 
-    public function store(StoreReservaRequest $request): JsonResponse
+    public function store(StoreReservaRequest $request): ReservaResource
     {
         $data     = $request->validated();
         $asientos = $data['asientos'] ?? [];
@@ -31,16 +46,16 @@ class ReservaController extends Controller
                 ->update(['estado' => 'Ocupado']);
         }
 
-        return response()->json($reserva->load(['cliente', 'horario.pelicula', 'asientos']), 201);
+        return new ReservaResource($reserva->load(['cliente', 'horario.pelicula', 'asientos']));
     }
 
-    public function show(Reserva $reserva): JsonResponse
+    public function show(Reserva $reserva): ReservaResource
     {
         $reserva->load(['cliente', 'horario.pelicula', 'horario.sala.sucursal', 'asientos', 'ordenes.productos']);
-        return response()->json($reserva);
+        return new ReservaResource($reserva);
     }
 
-    public function update(UpdateReservaRequest $request, Reserva $reserva): JsonResponse
+    public function update(UpdateReservaRequest $request, Reserva $reserva): ReservaResource
     {
         $data     = $request->validated();
         $asientos = $data['asientos'] ?? null;
@@ -56,7 +71,7 @@ class ReservaController extends Controller
                 ->update(['estado' => 'Ocupado']);
         }
 
-        return response()->json($reserva->load(['cliente', 'horario.pelicula', 'asientos']));
+        return new ReservaResource($reserva->load(['cliente', 'horario.pelicula', 'asientos']));
     }
 
     public function destroy(Reserva $reserva): JsonResponse
@@ -67,15 +82,15 @@ class ReservaController extends Controller
         return response()->json(['message' => 'Reserva eliminada correctamente']);
     }
 
-    // GET /api/reservas/{reserva}/asientos
-    public function asientos(Reserva $reserva): JsonResponse
+    // GET /api/v1/admin/reservas/{reserva}/asientos
+    public function asientos(Reserva $reserva): AnonymousResourceCollection
     {
-        return response()->json($reserva->asientos);
+        return AsientoResource::collection($reserva->asientos);
     }
 
-    // GET /api/reservas/{reserva}/ordenes
-    public function ordenes(Reserva $reserva): JsonResponse
+    // GET /api/v1/admin/reservas/{reserva}/ordenes
+    public function ordenes(Reserva $reserva): AnonymousResourceCollection
     {
-        return response()->json($reserva->ordenes()->with('productos')->get());
+        return OrdenDulceriaResource::collection($reserva->ordenes()->with('productos')->get());
     }
 }

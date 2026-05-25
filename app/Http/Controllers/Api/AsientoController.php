@@ -5,33 +5,34 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreAsientoRequest;
 use App\Http\Requests\UpdateAsientoRequest;
+use App\Http\Resources\AsientoResource;
 use App\Models\Asiento;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class AsientoController extends Controller
 {
-    public function index(): JsonResponse
+    public function index(): AnonymousResourceCollection
     {
-        $asientos = Asiento::with('sala')->get();
-        return response()->json($asientos);
+        return AsientoResource::collection(Asiento::with('sala')->get());
     }
 
-    public function store(StoreAsientoRequest $request): JsonResponse
+    public function store(StoreAsientoRequest $request): AsientoResource
     {
         $asiento = Asiento::create($request->validated());
-        return response()->json($asiento->load('sala'), 201);
+        return new AsientoResource($asiento->load('sala'));
     }
 
-    public function show(Asiento $asiento): JsonResponse
+    public function show(Asiento $asiento): AsientoResource
     {
         $asiento->load('sala.sucursal');
-        return response()->json($asiento);
+        return new AsientoResource($asiento);
     }
 
-    public function update(UpdateAsientoRequest $request, Asiento $asiento): JsonResponse
+    public function update(UpdateAsientoRequest $request, Asiento $asiento): AsientoResource
     {
         $asiento->update($request->validated());
-        return response()->json($asiento->load('sala'));
+        return new AsientoResource($asiento->load('sala'));
     }
 
     public function destroy(Asiento $asiento): JsonResponse
