@@ -25,7 +25,19 @@ class UpdateClienteRequest extends FormRequest
             'correo_cli'       => "sometimes|email|unique:clientes,correo_cli,{$id},id_cliente",
             'edad_cli'         => 'sometimes|integer|min:1|max:120',
             'contrasena_cli'   => 'sometimes|nullable|string|min:6',
-            'contacto_cli'     => 'sometimes|string|max:20',
+            'contacto_cli'     => 'required|string|max:9|regex:/^\d{4}-\d{4}$/',
+        ];
+    }
+
+     public function messages(): array
+    {
+        return [
+            'correo_cli.unique'    => 'Este correo ya está registrado.',
+            'contrasena_cli.min'   => 'La contraseña debe tener al menos 6 caracteres.',
+            'edad_cli.min'         => 'La edad debe ser mayor a 0.',
+            'contacto_cli.required'     => 'El contacto es obligatorio.',
+            'contacto_cli.regex'        => 'El contacto debe tener el formato 1234-5678.',
+            'contacto_cli.max'          => 'El contacto no debe superar los 9 caracteres.',
         ];
     }
 }

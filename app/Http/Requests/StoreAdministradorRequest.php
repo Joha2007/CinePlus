@@ -22,7 +22,7 @@ class StoreAdministradorRequest extends FormRequest
             'nombre_adm'    => 'required|string|max:100',
             'apellido_adm'  => 'required|string|max:100',
             'correo_adm'    => 'required|email|unique:administradores,correo_adm',
-            'contacto_adm'  => 'required|string|max:20',
+            'contacto_adm'  => 'required|string|max:9|regex:/^\d{4}-\d{4}$/',
             'contrasena_adm'=> 'required|string|min:6',
         ];
     }
@@ -34,6 +34,9 @@ class StoreAdministradorRequest extends FormRequest
             'id_suc.exists'          => 'La sucursal seleccionada no existe.',
             'correo_adm.unique'      => 'Este correo ya está registrado.',
             'contrasena_adm.min'     => 'La contraseña debe tener al menos 6 caracteres.',
+            'contacto_adm.required'     => 'El contacto es obligatorio.',
+            'contacto_adm.regex'        => 'El contacto debe tener el formato 1234-5678.',
+            'contacto_adm.max'          => 'El contacto no debe superar los 9 caracteres.',
         ];
     }
 }
