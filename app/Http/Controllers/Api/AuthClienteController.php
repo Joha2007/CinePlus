@@ -16,6 +16,8 @@ class AuthClienteController extends Controller
      * Registro de nuevo cliente.
      * POST /api/v1/auth/cliente/register
      */
+
+    // Estoe s una prueba de comandos 
     public function register(Request $request): JsonResponse
     {
         $data = $request->validate([

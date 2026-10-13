@@ -19,6 +19,7 @@ class OrdenDulceriaController extends Controller
         );
     }
 
+    // Prueba de comandos 
     public function store(StoreOrdenDulceriaRequest $request): OrdenDulceriaResource
     {
         $data      = $request->validated();

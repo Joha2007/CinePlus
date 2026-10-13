@@ -17,6 +17,8 @@ class ProductoController extends Controller
      * GET /api/v1/admin/productos
      * Parámetros opcionales: ?nombre=&per_page=
      */
+
+    // Hola Hola
     public function index(Request $request): AnonymousResourceCollection
     {
         $query = Producto::with('administrador');
