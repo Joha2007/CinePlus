@@ -191,8 +191,8 @@ return [
         'edad_cli' => [
             'required' => 'La edad es obligatoria.',
             'integer'  => 'La edad debe ser un número entero.',
-            'min'      => 'La edad debe ser al menos :min año.',
-            'max'      => 'La edad no puede ser mayor a :max años.',
+            'min'      => 'Debes tener al menos 15 años para registrarte.',
+            'max'      => 'La edad no puede ser mayor a 85 años.',
         ],
         'contacto_cli' => [
             'required' => 'El número de contacto es obligatorio.',
